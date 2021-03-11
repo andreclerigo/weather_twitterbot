@@ -1,2 +1,2 @@
-# weather_twitterbot
+# Twitter Bot that tweets the Weather everyday!
  
