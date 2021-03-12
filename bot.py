@@ -1,47 +1,54 @@
-from pyowm.weatherapi25 import observation
 import tweepy
-import datetime
 import pyowm  #import Python Open Weather Map
+import datetime
 import time
 import json
 import os
+from pyowm.weatherapi25 import observation
 from dotenv import load_dotenv
 from os.path import join, dirname
 
 
 #Get the last 20 mentions on the timeline
 def getMention(api):
-    f = open('users_accepted.txt', 'w+')
-    users_accepted = [json.loads(line) for line in f]  #Do a list of dictionaries that are inside the .txt
-    exists = False
+    with open('users_accepted.txt', 'r') as f:
+        users_accepted = json.load(f)
+        print(users_accepted)
 
-    tweets = api.mentions_timeline()
-    for tweet in tweets:
-        handler = str(tweet.user.screen_name)
-        place = str(tweet.text.replace('@WeatherBotDaily', '').strip())
-        location = str(tweet.user.location)
+    with open('users_accepted.txt', 'w') as f:
+        exists = False
+        data = []
 
-        #Sees if the user is already in the database
-        for dic in users_accepted:
-            if dic.get(handler) is not None:
-                exists = True
+        tweets = api.mentions_timeline()
+        for tweet in tweets:
+            handler = str(tweet.user.screen_name)
+            place = str(tweet.text.replace('@WeatherBotDaily', '').strip())
+            location = str(tweet.user.location)
 
-        #If the user isnt already in the databse then add him
-        if not exists:
-            if place == '' and location == '':
-                print(handler)
-                print("Dennied")
-                #json.dump({handler: "Dennied"}, f)
-            elif place == '' and location != '':
-                print(handler)
-                print(location)
-                json.dump({handler: location}, f)
-            else:
-                print(handler)
-                print(place)
-                json.dump({handler: place}, f)
+            #Sees if the user is already in the database
+            for dic in users_accepted:
+                if dic.get(handler) is not None:
+                    exists = True
 
-    f.close()
+            print(exists)
+            #If the user isnt already in the databse then add him
+            if not exists:
+                d = {}
+                if place == '' and location == '':
+                    print(handler)
+                    print("Dennied")
+                    """ d = {handler: "Dennied"}
+                    data.append(dict(d)) """
+                elif place == '' and location != '':
+                    d = {handler: location}
+                    data.append(dict(d))
+                else:
+                    d = {handler: place}
+                    data.append(dict(d))
+
+        for dat in data:
+            users_accepted.append(dat)
+        json.dump(users_accepted, f)
 
 
 #Follows everyone back
@@ -55,16 +62,21 @@ def followBack(api):
 
 #Checks if the user 
 def checkCity():
-    print(OpenWMap)
     pass
 
 
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 8:
-        f = open('users_accepted.txt', 'r')
-        users_accepted = [json.loads(line) for line in f]  
+    if now.hour == 21:
+        with open('users_accepted.txt', 'r') as f:
+            users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
+        
+        for dic in users_accepted:
+            key, value = list(dic.items())[0]  #Get the handler as a string
+            observation = mgr.weather_at_place("Batalha, PT")
+            w = observation.weather
+            print(key + " vao estar " + str(w.temperature('celsius')['temp']))
     pass
 
 
@@ -81,7 +93,7 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 #Create API object
-api = tweepy.API(auth)
+api = tweepy.API(auth, wait_on_rate_limit = True)
 
 #Terminal debug
 try:
@@ -95,11 +107,8 @@ OpenWMap = pyowm.OWM(APIKEY)
 mgr = OpenWMap.weather_manager()
 
 while True:
-    """ followBack(api)
+    #followBack(api)
     getMention(api)
-    tweetWeather(api) """
-    observation = mgr.weather_at_place('London, UK')  # give where you need to see the weather
-    w = observation.weather
-    print(w.temperature('celsius'))
+    tweetWeather(api)
     print("Waiting..")
     time.sleep(60)

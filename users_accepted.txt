@@ -1,1 +1,1 @@
-{"itsbekas": "Leiria, Portugal"}{"mrmaster__": "Batalha, Portugal"}
+[{"itsbekas": "Leiria, PT"}, {"mrmaster__": "Batalha, PT"}]
