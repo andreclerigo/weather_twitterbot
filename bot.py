@@ -1,35 +1,12 @@
+from pyowm.weatherapi25 import observation
 import tweepy
 import datetime
+import pyowm  #import Python Open Weather Map
 import time
 import json
 import os
 from dotenv import load_dotenv
 from os.path import join, dirname
-
-def main():
-    #Setting up variables
-    dotenv_path = join(dirname(__file__),'.env')
-    load_dotenv(dotenv_path)
-    CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
-    CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
-    ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-    ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
-
-    #Authenticate to Twitter
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-
-    #Create API object
-    api = tweepy.API(auth)
-
-    #Terminal debug
-    try:
-        api.verify_credentials()
-        print("Authentication OK")
-    except:
-        print("Error during authentication")
-
-    return api
 
 
 #Get the last 20 mentions on the timeline
@@ -54,7 +31,7 @@ def getMention(api):
             if place == '' and location == '':
                 print(handler)
                 print("Dennied")
-                json.dump({handler: "Dennied"}, f)
+                #json.dump({handler: "Dennied"}, f)
             elif place == '' and location != '':
                 print(handler)
                 print(location)
@@ -65,6 +42,7 @@ def getMention(api):
                 json.dump({handler: place}, f)
 
     f.close()
+
 
 #Follows everyone back
 def followBack(api):
@@ -77,6 +55,7 @@ def followBack(api):
 
 #Checks if the user 
 def checkCity():
+    print(OpenWMap)
     pass
 
 
@@ -84,14 +63,43 @@ def checkCity():
 def tweetWeather(api):
     now = datetime.datetime.now()
     if now.hour == 8:
-        pass
+        f = open('users_accepted.txt', 'r')
+        users_accepted = [json.loads(line) for line in f]  
     pass
 
 
-API = main()
+#Setting up variables
+dotenv_path = join(dirname(__file__),'.env')
+load_dotenv(dotenv_path)
+CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
+CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
+ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
+ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
+
+#Authenticate to Twitter
+auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+
+#Create API object
+api = tweepy.API(auth)
+
+#Terminal debug
+try:
+    api.verify_credentials()
+    print("Authentication OK")
+except:
+    print("Error during authentication")
+
+APIKEY = os.environ.get("API_KEY")
+OpenWMap = pyowm.OWM(APIKEY)
+mgr = OpenWMap.weather_manager()
+
 while True:
-    followBack(API)
-    getMention(API)
-    tweetWeather(API)
+    """ followBack(api)
+    getMention(api)
+    tweetWeather(api) """
+    observation = mgr.weather_at_place('London, UK')  # give where you need to see the weather
+    w = observation.weather
+    print(w.temperature('celsius'))
     print("Waiting..")
     time.sleep(60)
