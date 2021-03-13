@@ -1,6 +1,7 @@
 import tweepy
-import pyowm  #import Python Open Weather Map
+import pycountry
 import datetime
+import pyowm  #import Python Open Weather Map
 import time
 import json
 import os
@@ -30,7 +31,6 @@ def getMention(api):
                 if dic.get(handler) is not None:
                     exists = True
 
-            print(exists)
             #If the user isnt already in the databse then add him
             if not exists:
                 d = {}
@@ -62,22 +62,39 @@ def followBack(api):
 
 #Checks if the user 
 def checkCity():
+    countries = {}
+    for country in pycountry.countries:
+        countries[country.name] = country.alpha_2
+
+    
     pass
 
 
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 21:
+    if now.hour == 0:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
+        countries = {}
+        for country in pycountry.countries:
+            countries[country.name] = country.alpha_2
+
         for dic in users_accepted:
             key, value = list(dic.items())[0]  #Get the handler as a string
-            observation = mgr.weather_at_place("Batalha, PT")
+
+            city, country = value.split(",")
+            code = countries[country.strip()]
+
+            observation = mgr.weather_at_place(city + ", " + code)
             w = observation.weather
-            print(key + " vao estar " + str(w.temperature('celsius')['temp']))
-    pass
+            api.update_status("@" + key + " hoje vai ter máximas de " +
+                                            str(w.temperature('celsius')['temp_max']) + "ºC com minimas de " +
+                                            str(w.temperature('celsius')['temp_min']) + "ºC. A temperatura atual é de " +
+                                            str(w.temperature('celsius')['temp']) + " em " + city + ", " + code)
+
+        time.sleep(61* 60)  #Wait 1 hour and 1 minute
 
 
 #Setting up variables
@@ -110,5 +127,5 @@ while True:
     #followBack(api)
     getMention(api)
     tweetWeather(api)
-    print("Waiting..")
+    print("Waiting...")
     time.sleep(60)
