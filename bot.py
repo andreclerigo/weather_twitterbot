@@ -65,8 +65,6 @@ def checkCity():
     countries = {}
     for country in pycountry.countries:
         countries[country.name] = country.alpha_2
-
-    
     pass
 
 
@@ -109,21 +107,24 @@ ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
-#Create API object
-api = tweepy.API(auth, wait_on_rate_limit = True)
 
-#Terminal debug
-try:
-    api.verify_credentials()
-    print("Authentication OK")
-except:
-    print("Error during authentication")
 
 APIKEY = os.environ.get("API_KEY")
 OpenWMap = pyowm.OWM(APIKEY)
 mgr = OpenWMap.weather_manager()
 
 while True:
+    #Create API object
+    api = tweepy.API(auth, wait_on_rate_limit = True)
+
+    #Terminal debug
+    try:
+        api.verify_credentials()
+        print("Authentication OK")
+    except:
+        print("Error during authentication")
+
+    print(api.rate_limit_status())
     #followBack(api)
     getMention(api)
     tweetWeather(api)
