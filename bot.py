@@ -12,6 +12,8 @@ from os.path import join, dirname
 
 #Get the last 20 mentions on the timeline
 def getMention(api):
+    tweets = api.mentions_timeline()
+
     with open('users_accepted.txt', 'r') as f:
         users_accepted = json.load(f)
         print(users_accepted)
@@ -20,10 +22,9 @@ def getMention(api):
         exists = False
         data = []
 
-        tweets = api.mentions_timeline()
         for tweet in tweets:
             handler = str(tweet.user.screen_name)
-            place = str(tweet.text.replace('@WeatherBotDaily', '').strip())
+            place = str(tweet.text.replace('@BotTestWeather1', '').strip())
             location = str(tweet.user.location)
 
             #Sees if the user is already in the database
@@ -71,7 +72,7 @@ def checkCity():
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 11:
+    if now.hour == 1:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
@@ -92,7 +93,7 @@ def tweetWeather(api):
                                             str(w.temperature('celsius')['temp_min']) + "ºC. A temperatura atual é de " +
                                             str(w.temperature('celsius')['temp']) + " em " + city + ", " + code)
 
-        time.sleep(61* 60)  #Wait 1 hour and 1 minute
+        time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
 #Setting up variables
@@ -107,11 +108,10 @@ ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
-
-
 APIKEY = os.environ.get("API_KEY")
 OpenWMap = pyowm.OWM(APIKEY)
 mgr = OpenWMap.weather_manager()
+
 
 while True:
     #Create API object
@@ -123,10 +123,9 @@ while True:
         print("Authentication OK")
     except:
         print("Error during authentication")
-
-    print(api.rate_limit_status())
+    #print(api.rate_limit_status())
     #followBack(api)
     getMention(api)
     tweetWeather(api)
     print("Waiting...")
-    time.sleep(60)
+    time.sleep(90)
