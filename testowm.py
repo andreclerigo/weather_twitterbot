@@ -1,11 +1,10 @@
 import pyowm
+import os
+from pyowm.owm import OWM
+from pyowm.weatherapi25 import forecast
 from dotenv import load_dotenv
 from os.path import join, dirname
-from pyowm.owm import OWM
-from pyowm.utils import config
-from pyowm.utils import timestamps
-from pyowm.weatherapi25 import forecast
-import os
+
 dotenv_path = join(dirname(__file__),'.env')
 load_dotenv(dotenv_path)
 

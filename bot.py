@@ -1,18 +1,15 @@
 import tweepy
-import pycountry
 import datetime
 import pyowm  #import Python Open Weather Map
 import time
 import json
 import os
-from pyowm.utils import config
-from pyowm.utils import timestamps
 from dotenv import load_dotenv
 from os.path import join, dirname
 from generate_countries import read_file
 
 
-#Get the last 20 mentions on the timeline
+#Get the last 20 mentions on the timeline and store it on a file
 def getMention(api):
     tweets = api.mentions_timeline()
 
@@ -26,8 +23,8 @@ def getMention(api):
 
         for tweet in tweets:
             handler = str(tweet.user.screen_name)
-            place = str(tweet.text.replace('@BotTestWeather1', '').strip())
-            location = str(tweet.user.location)
+            place = str(tweet.text.replace('@BotTestWeather1', '').strip())  #Check if its valid
+            location = str(tweet.user.location)  #Check if its valid
 
             #Sees if the user is already in the database
             for dic in users_accepted:
@@ -63,42 +60,42 @@ def followBack(api):
     print()
 
 
-#Checks if the user 
-def checkCity():
-    countries = {}
-    for country in pycountry.countries:
-        countries[country.name] = country.alpha_2
+#Checks if the user gave a correct location
+def checkCity(location):
+    countries = read_file()
     pass
+
 
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 20:
+    if now.hour == 22:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
         countries = read_file()
 
-        for dic in users_accepted:
-            key, value = list(dic.items())[0]  #Get the handler as a string
+        for user in users_accepted:
+            key, value = list(user.items())[0]  #Get the handler as a string
 
             city, country = value.split(",")
             code = countries[country.strip()]
             
-            list_of_locations = reg.locations_for(city, country=code)
-            place = list_of_locations[0]
-            one_call = mgr.one_call(lat=place.lat, lon=place.lon)
-            #api.update_status
-            daily = one_call.forecast_daily[0].temperature('celsius')
-            print("Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " +
-                                        str(daily['max']) + "ºC com minimas de " +
-                                        str(daily['min']) + "ºC. A temperatura atual é de " +
-                                        str(one_call.current.temperature('celsius')['temp']) + " em " + city + ", " + code)
+            place = reg.locations_for(city, code)[0]
+            one_call = mgr.one_call(lat=place.lat, lon=place.lon)  #Creates a One Call object
+            
+            forecast = one_call.forecast_daily[0].temperature('celsius')  #Get information for the day
+
+            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(forecast['max']) + "ºC com minimas de " + str(forecast['min']) + "ºC. Atualmente estão " + str(one_call.current.temperature('celsius')['temp']) + "ºC em " + city + ", " + code
+            
+            #api.update_status(tweet_content)
+            print(tweet_content)
+            
             time.sleep(30)
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
-#Setting up variables
+#Setting up envioment variables
 dotenv_path = join(dirname(__file__),'.env')
 load_dotenv(dotenv_path)
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
@@ -113,6 +110,7 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 APIKEY = os.environ.get("API_KEY")
 owm = pyowm.OWM(APIKEY)
 mgr = owm.weather_manager()
+mgruv = owm.uvindex_manager()
 reg = owm.city_id_registry()
 
 months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
@@ -127,8 +125,9 @@ while True:
         print("Authentication OK")
     except:
         print("Error during authentication")
+
     #followBack(api)
     getMention(api)
     tweetWeather(api)
     print("Waiting...")
-    time.sleep(2 * 60)
+    time.sleep(2 * 60)  #Request every 2 minutes
