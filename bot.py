@@ -69,7 +69,7 @@ def checkCity(location):
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 22:
+    if now.hour == 23:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
@@ -86,12 +86,29 @@ def tweetWeather(api):
             
             forecast = one_call.forecast_daily[0].temperature('celsius')  #Get information for the day
 
-            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(forecast['max']) + "ºC com minimas de " + str(forecast['min']) + "ºC. Atualmente estão " + str(one_call.current.temperature('celsius')['temp']) + "ºC em " + city + ", " + code
-            
-            #api.update_status(tweet_content)
+            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(forecast['max']) + "ºC com mínimas de " + str(forecast['min']) + "ºC. Atualmente estão " + str(one_call.current.temperature('celsius')['temp']) + "ºC em " + city + ", " + code
+
+            #Rain warning?
+
+            uvi = mgruv.uvindex_around_coords(place.lat, place.lon).to_dict()['value']
+            tweet_content += "\nÍndice UV: " + str(uvi)
+
+            if uvi >= 7:
+                tweet_content += " mete protetor solar!"
+
+            #Beach time
+            #if now.month >= 5 and now.month <= 9 and forecast['max'] >= 28:
+            tweet_content += "\nHoje vai estar bom para ir à praia!" + '\U0001F60E'
+
+            #Sunset
+            observation = mgr.weather_at_place(city + ", " + code)
+            sunset = observation.weather.sunset_time(timeformat='date')
+            tweet_content += "\nO por do Sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
+
+            api.update_status(tweet_content)
             print(tweet_content)
             
-            time.sleep(30)
+            time.sleep(60)
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
