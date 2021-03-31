@@ -18,32 +18,33 @@ def getMention(api):
         print(users_accepted)
 
     with open('users_accepted.txt', 'w') as f:
-        exists = False
+        user_exists = False
+        location_exists = True
         data = []
 
         for tweet in tweets:
-            handler = str(tweet.user.screen_name)
+            tag = str(tweet.user.screen_name)
             place = str(tweet.text.replace('@BotTestWeather1', '').strip())  #Check if its valid
             location = str(tweet.user.location)  #Check if its valid
 
             #Sees if the user is already in the database
             for dic in users_accepted:
-                if dic.get(handler) is not None:
-                    exists = True
+                if dic.get(tag) is not None:
+                    user_exists = True
 
             #If the user isnt already in the databse then add him
-            if not exists:
+            if not user_exists and location_exists:
                 d = {}
                 if place == '' and location == '':
-                    print(handler)
+                    print(tag)
                     print("Dennied")
-                    """ d = {handler: "Dennied"}
+                    """ d = {tag: "Dennied"}
                     data.append(dict(d)) """
                 elif place == '' and location != '':
-                    d = {handler: location}
+                    d = {tag: location}
                     data.append(dict(d))
                 else:
-                    d = {handler: place}
+                    d = {tag: place}
                     data.append(dict(d))
 
         for dat in data:
@@ -66,10 +67,17 @@ def checkCity(location):
     pass
 
 
+#Check there will be rain in the location
+def checkRain(onecall):
+    hours = onecall.forecast_hourly  #List of forecast hourly
+    days = onecall.forecast_daily  #List of forecast daily
+    pass
+
+
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 23:
+    if now.hour == 0:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
@@ -89,7 +97,8 @@ def tweetWeather(api):
             tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(round(forecast['max'], 1)) + "ºC com mínimas de " + str(round(forecast['min'], 1)) + "ºC. Atualmente estão " + str(round(one_call.current.temperature('celsius')['temp'], 1)) + "ºC em " + city + ", " + code
             tweet_content += "\nA sensação de temperatura é de " + str(round(one_call.current.temperature('celsius')['feels_like'], 1)) + "ºC"
 
-            #Rain warning?
+            #Rain warning
+            #checkRain(one_call)
 
             uvi = mgruv.uvindex_around_coords(place.lat, place.lon).to_dict()['value']
             tweet_content += "\nÍndice UV: " + str(round(uvi, 1))
@@ -106,8 +115,8 @@ def tweetWeather(api):
             sunset = observation.weather.sunset_time(timeformat='date')
             tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
 
-            api.update_status(tweet_content)
-            #print(tweet_content)
+            #api.update_status(tweet_content)
+            print(tweet_content)
             
             time.sleep(20)
         time.sleep(2 * 60* 60)  #Wait 2 hours
