@@ -9,6 +9,7 @@ from pyowm.utils import config
 from pyowm.utils import timestamps
 from dotenv import load_dotenv
 from os.path import join, dirname
+from generate_countries import read_file
 
 
 #Get the last 20 mentions on the timeline
@@ -69,17 +70,16 @@ def checkCity():
         countries[country.name] = country.alpha_2
     pass
 
-
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 11:
+    if now.hour == 19:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
-        countries = {}
-        for country in pycountry.countries:
-            countries[country.name] = country.alpha_2
+        #countries = {}
+        
+        countries = read_file()
 
         for dic in users_accepted:
             key, value = list(dic.items())[0]  #Get the handler as a string
@@ -90,13 +90,13 @@ def tweetWeather(api):
             list_of_locations = reg.locations_for(city, country=code)
             place = list_of_locations[0]
             one_call = mgr.one_call(lat=place.lat, lon=place.lon)
-
+            #api.update_status
             daily = one_call.forecast_daily[0].temperature('celsius')
-            api.update_status("Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " +
+            print("Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " +
                                         str(daily['max']) + "ºC com minimas de " +
                                         str(daily['min']) + "ºC. A temperatura atual é de " +
                                         str(one_call.current.temperature('celsius')['temp']) + " em " + city + ", " + code)
-
+            time.sleep(30)
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
