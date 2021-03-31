@@ -1,12 +1,16 @@
 import pyowm
+from dotenv import load_dotenv
+from os.path import join, dirname
 from pyowm.owm import OWM
 from pyowm.utils import config
 from pyowm.utils import timestamps
-import os
-
 from pyowm.weatherapi25 import forecast
+import os
+dotenv_path = join(dirname(__file__),'.env')
+load_dotenv(dotenv_path)
 
-APIKEY = "c548bc34f606696689b7c67ce8cbdbc7"
+
+APIKEY = os.environ.get("API_KEY")
 owm = pyowm.OWM(APIKEY)
 mgr = owm.weather_manager()
 mgruv = owm.uvindex_manager()

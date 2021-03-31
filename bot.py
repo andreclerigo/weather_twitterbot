@@ -73,11 +73,9 @@ def checkCity():
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 19:
+    if now.hour == 20:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
-        
-        #countries = {}
         
         countries = read_file()
 
@@ -129,9 +127,8 @@ while True:
         print("Authentication OK")
     except:
         print("Error during authentication")
-    #print(api.rate_limit_status())
     #followBack(api)
     getMention(api)
     tweetWeather(api)
     print("Waiting...")
-    time.sleep(90)
+    time.sleep(2 * 60)
