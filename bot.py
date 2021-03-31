@@ -5,7 +5,8 @@ import pyowm  #import Python Open Weather Map
 import time
 import json
 import os
-from pyowm.weatherapi25 import observation
+from pyowm.utils import config
+from pyowm.utils import timestamps
 from dotenv import load_dotenv
 from os.path import join, dirname
 
@@ -72,7 +73,7 @@ def checkCity():
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 1:
+    if now.hour == 11:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
@@ -85,13 +86,16 @@ def tweetWeather(api):
 
             city, country = value.split(",")
             code = countries[country.strip()]
+            
+            list_of_locations = reg.locations_for(city, country=code)
+            place = list_of_locations[0]
+            one_call = mgr.one_call(lat=place.lat, lon=place.lon)
 
-            observation = mgr.weather_at_place(city + ", " + code)
-            w = observation.weather
-            api.update_status("@" + key + " hoje vai ter máximas de " +
-                                            str(w.temperature('celsius')['temp_max']) + "ºC com minimas de " +
-                                            str(w.temperature('celsius')['temp_min']) + "ºC. A temperatura atual é de " +
-                                            str(w.temperature('celsius')['temp']) + " em " + city + ", " + code)
+            daily = one_call.forecast_daily[0].temperature('celsius')
+            api.update_status("Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " +
+                                        str(daily['max']) + "ºC com minimas de " +
+                                        str(daily['min']) + "ºC. A temperatura atual é de " +
+                                        str(one_call.current.temperature('celsius')['temp']) + " em " + city + ", " + code)
 
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
@@ -109,9 +113,11 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 APIKEY = os.environ.get("API_KEY")
-OpenWMap = pyowm.OWM(APIKEY)
-mgr = OpenWMap.weather_manager()
+owm = pyowm.OWM(APIKEY)
+mgr = owm.weather_manager()
+reg = owm.city_id_registry()
 
+months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 
 while True:
     #Create API object
