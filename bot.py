@@ -86,29 +86,30 @@ def tweetWeather(api):
             
             forecast = one_call.forecast_daily[0].temperature('celsius')  #Get information for the day
 
-            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(forecast['max']) + "ºC com mínimas de " + str(forecast['min']) + "ºC. Atualmente estão " + str(one_call.current.temperature('celsius')['temp']) + "ºC em " + city + ", " + code
+            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(round(forecast['max'], 1)) + "ºC com mínimas de " + str(round(forecast['min'], 1)) + "ºC. Atualmente estão " + str(round(one_call.current.temperature('celsius')['temp'], 1)) + "ºC em " + city + ", " + code
+            tweet_content += "\nA sensação de temperatura é de " + str(round(one_call.current.temperature('celsius')['feels_like'], 1)) + "ºC"
 
             #Rain warning?
 
             uvi = mgruv.uvindex_around_coords(place.lat, place.lon).to_dict()['value']
-            tweet_content += "\nÍndice UV: " + str(uvi)
+            tweet_content += "\nÍndice UV: " + str(round(uvi, 1))
 
             if uvi >= 7:
-                tweet_content += " mete protetor solar!"
+                tweet_content += " mete protetor solar! " + '\U0001F9F4'
 
             #Beach time
-            #if now.month >= 5 and now.month <= 9 and forecast['max'] >= 28:
-            tweet_content += "\nHoje vai estar bom para ir à praia!" + '\U0001F60E'
+            if now.month >= 5 and now.month <= 9 and forecast['max'] >= 28:
+                tweet_content += "\nHoje vai estar bom para ir à praia! " + '\U0001F60E'
 
             #Sunset
             observation = mgr.weather_at_place(city + ", " + code)
             sunset = observation.weather.sunset_time(timeformat='date')
-            tweet_content += "\nO por do Sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
+            tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
 
             api.update_status(tweet_content)
-            print(tweet_content)
+            #print(tweet_content)
             
-            time.sleep(60)
+            time.sleep(20)
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
