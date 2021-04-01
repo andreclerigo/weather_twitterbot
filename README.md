@@ -1,9 +1,21 @@
 # Twitter Bot that tweets the Weather everyday!
 Works by tweeting at the bot with the location you want to be notified  
 
-## Example
-`@bot_handler Madrid, Spain`  
+## Usage
+`@bot_handler Lisbon, Portugal`  
 The bot will tweet at you everyday at 10:00 (GMT+0) the maximum and minimum expected temperature for Madrid, Spain
+
+## Bot features
+- Tweets everyday at 10am GMT+00
+- Doesn't allow multiple locations for 1 user automatically (can be done manually by changing your users_accepted.txt)
+- Information provided:
+  - Forecast for maximum and minimum temperature
+  - Actual temperature and sensation temperature
+  - Bad conditions warning (Rain & Snow)
+  - UV Index
+  - Advice for sunscreen on high UV
+  - Tell if the weather is good to go to the beach
+  - Sunset time (GMT+0 hour)
 
 ## Dependencies
 `pip install tweepy`  
