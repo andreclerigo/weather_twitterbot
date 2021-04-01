@@ -64,13 +64,13 @@ def checkBadConditions(onecall):
     status = onecall.forecast_daily[0].detailed_status
     
     if "snow" in status:
-        rain_info = "\nHoje vai nevar " + '\U0001F328'
-        return rain_info
+        info = "\nHoje vai nevar " + '\U0001F328'
+        return info
     elif "rain" in status:
         translator = google_translator()  
         translate_text = translator.translate(status, lang_tgt='pt') 
-        rain_info = "\nHoje vai ter " + translate_text + " " + '\U0001F327'
-        return rain_info
+        info = "\nHoje vai ter " + translate_text + " " + '\U0001F327'
+        return info
     else:
         pass
 
@@ -117,8 +117,8 @@ def tweetWeather(api):
             sunset = observation.weather.sunset_time(timeformat='date')
             tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
 
-            #api.update_status(tweet_content)
-            print(tweet_content)
+            api.update_status(tweet_content)
+            print(tweet_content)  #Debug
             
             time.sleep(20)
         time.sleep(2 * 60* 60)  #Wait 2 hours

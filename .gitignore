@@ -1,3 +1,4 @@
 .env
 users_accepted.txt
 __pycache__/
+test_owm_api.py
