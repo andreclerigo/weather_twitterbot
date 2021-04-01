@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from os.path import join, dirname
 from generate_countries import read_file
+from google_trans_new import google_translator  
 
 
 #Get the last 20 mentions on the timeline and store it on a file
@@ -68,16 +69,26 @@ def checkCity(location):
 
 
 #Check there will be rain in the location
-def checkRain(onecall):
-    hours = onecall.forecast_hourly  #List of forecast hourly
-    days = onecall.forecast_daily  #List of forecast daily
-    pass
+def checkBadConditions(onecall):
+    status = onecall.forecast_daily[0].detailed_status
+    
+    if "snow" in status:
+        rain_info = "\nHoje vai nevar " + '\U0001F328'
+        return rain_info
+
+    if "rain" in status:
+        translator = google_translator()  
+        translate_text = translator.translate(status, lang_tgt='pt') 
+        rain_info = "\nHoje vai ter " + translate_text + " " + '\U0001F327'
+        return rain_info
+    else:
+        pass
 
 
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 0:
+    if now.hour == 14:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
@@ -98,7 +109,7 @@ def tweetWeather(api):
             tweet_content += "\nA sensação de temperatura é de " + str(round(one_call.current.temperature('celsius')['feels_like'], 1)) + "ºC"
 
             #Rain warning
-            #checkRain(one_call)
+            tweet_content += checkBadConditions(one_call)
 
             uvi = mgruv.uvindex_around_coords(place.lat, place.lon).to_dict()['value']
             tweet_content += "\nÍndice UV: " + str(round(uvi, 1))
