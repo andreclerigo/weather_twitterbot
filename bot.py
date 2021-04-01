@@ -78,7 +78,7 @@ def checkBadConditions(onecall):
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 20:
+    if now.hour == 10:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
         
