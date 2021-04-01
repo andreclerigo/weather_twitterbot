@@ -1,14 +1,11 @@
 import pyowm
 import os
-from pyowm.owm import OWM
-from pyowm.weatherapi25 import forecast
 from dotenv import load_dotenv
 from os.path import join, dirname
 from google_trans_new import google_translator  
 
 dotenv_path = join(dirname(__file__),'.env')
 load_dotenv(dotenv_path)
-
 
 APIKEY = os.environ.get("API_KEY")
 owm = pyowm.OWM(APIKEY)
@@ -31,9 +28,9 @@ print(daily[0].detailed_status)
 for x in range(len(hourly)):
     print(hourly[x].rain)
 
-
 print(one_call.forecast_daily[0].temperature('celsius'))
 print(one_call.current.temperature('celsius'))
+
 
 observation = mgr.weather_at_place('Leiria, PT')
 weather = observation.weather
