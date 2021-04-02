@@ -31,7 +31,7 @@ def getMention(api):
             for dic in users_accepted:
                 if dic.get(tag) is not None:
                     user_exists = True
-                    break
+                    break                   #If its already in the database skip
                 else:
                     user_exists = False
 
@@ -59,20 +59,20 @@ def followBack(api):
     print()
 
 
-#Check there will be rain in the location
+#Check if there will be rain or snow in the location
 def checkBadConditions(onecall):
     status = onecall.forecast_daily[0].detailed_status
     
+    info = ""
+
     if "snow" in status:
         info = "\nHoje vai nevar " + '\U0001F328'
-        return info
     elif "rain" in status:
         translator = google_translator()  
         translate_text = translator.translate(status, lang_tgt='pt') 
         info = "\nHoje vai ter " + translate_text + " " + '\U0001F327'
-        return info
-    else:
-        pass
+    
+    return info
 
 
 #Tweets the weather
@@ -124,7 +124,7 @@ def tweetWeather(api):
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
 
-#Setting up envioment variables
+#Setting up enviorment variables
 dotenv_path = join(dirname(__file__),'.env')
 load_dotenv(dotenv_path)
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
@@ -132,11 +132,11 @@ CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
 ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
 ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
 
-#Authenticate to Twitter
+#Authenticate Twitter Credentials
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
-#OpenWeatherMap api setup
+#OpenWeatherMap API Setup
 APIKEY = os.environ.get("API_KEY")
 owm = pyowm.OWM(APIKEY)
 mgr = owm.weather_manager()
