@@ -40,4 +40,4 @@ def valid_location(message):
     if len(list_of_locations) == 0:
         return False, "Not valid"
 
-    return True, tuple[0] + "," + tuple[1]
+    return True, (tuple[0] + "," + code).strip()

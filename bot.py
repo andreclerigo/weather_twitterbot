@@ -20,7 +20,7 @@ def getMention(api):
         print(users_accepted)
 
     with open('users_accepted.txt', 'w') as f:
-        #user_exists = False
+        user_exists = False
         location_exists = False
         data = []
 
@@ -81,21 +81,18 @@ def tweetWeather(api):
     if now.hour == 10:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
-        
-        countries = read_file()
 
         for user in users_accepted:
             key, value = list(user.items())[0]  #Get the handler as a string
 
             city, country = value.split(",")
-            code = countries[country.strip()]
             
-            place = reg.locations_for(city, code)[0]
-            one_call = mgr.one_call(lat=place.lat, lon=place.lon)  #Creates a One Call object
+            place = reg.locations_for(city, country)[0]
+            one_call = mgr.one_call(place.lat, place.lon)  #Creates a One Call object
             
             forecast = one_call.forecast_daily[0].temperature('celsius')  #Get information for the day
 
-            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(round(forecast['max'], 1)) + "ºC com mínimas de " + str(round(forecast['min'], 1)) + "ºC. Atualmente estão " + str(round(one_call.current.temperature('celsius')['temp'], 1)) + "ºC em " + city + ", " + code
+            tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(round(forecast['max'], 1)) + "ºC com mínimas de " + str(round(forecast['min'], 1)) + "ºC. Atualmente estão " + str(round(one_call.current.temperature('celsius')['temp'], 1)) + "ºC em " + city + ", " + country
             tweet_content += "\nA sensação de temperatura é de " + str(round(one_call.current.temperature('celsius')['feels_like'], 1)) + "ºC"
 
             #Bad conditions warning (rain, snow, thunder?)
@@ -112,10 +109,10 @@ def tweetWeather(api):
             if now.month >= 5 and now.month <= 9 and forecast['max'] >= 28:
                 tweet_content += "\nHoje vai estar bom para ir à praia! " + '\U0001F60E'
 
-            #Sunset
-            observation = mgr.weather_at_place(city + ", " + code)
+            #Sunset information
+            observation = mgr.weather_at_place(city + ", " + country)
             sunset = observation.weather.sunset_time(timeformat='date')
-            tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.hour) + ":" + str(sunset.minute)
+            tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.strftime("%H:%M"))
 
             api.update_status(tweet_content)
             print(tweet_content)  #Debug
