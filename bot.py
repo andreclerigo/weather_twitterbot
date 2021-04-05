@@ -1,5 +1,6 @@
 import os
 import time
+import pytz
 import json
 import pyowm  #import Python Open Weather Map
 import tweepy
@@ -78,7 +79,7 @@ def checkBadConditions(onecall):
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 10:
+    if now.hour == 9:
         with open('users_accepted.txt', 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
 
@@ -106,15 +107,15 @@ def tweetWeather(api):
                 tweet_content += " mete protetor solar! " + '\U0001F9F4'
 
             #Beach time
-            if now.month >= 5 and now.month <= 9 and forecast['max'] >= 28:
+            if forecast['max'] >= 29:
                 tweet_content += "\nHoje vai estar bom para ir à praia! " + '\U0001F60E'
 
             #Sunset information
             observation = mgr.weather_at_place(city + ", " + country)
             sunset = observation.weather.sunset_time(timeformat='date')
-            tweet_content += "\nO pôr-do-sol vai ser às " + str(sunset.strftime("%H:%M"))
+            tweet_content += "\nO pôr-do-sol vai ser às " + sunset.astimezone(pytz.timezone("Europe/Lisbon")).strftime("%H:%M")
 
-            api.update_status(tweet_content)
+            #api.update_status(tweet_content)
             print(tweet_content)  #Debug
             
             time.sleep(20)
