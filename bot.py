@@ -115,7 +115,7 @@ def tweetWeather(api):
             sunset = observation.weather.sunset_time(timeformat='date')
             tweet_content += "\nO pôr-do-sol vai ser às " + sunset.astimezone(pytz.timezone("Europe/Lisbon")).strftime("%H:%M")
 
-            #api.update_status(tweet_content)
+            api.update_status(tweet_content)
             print(tweet_content)  #Debug
             
             time.sleep(20)
