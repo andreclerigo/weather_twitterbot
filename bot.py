@@ -38,7 +38,7 @@ def getMention(api):
 
             #If the user isnt already in the databse then add him
             if not user_exists:
-                message = str(tweet.text.replace('@BotTestWeather1', '').strip())
+                message = str(tweet.text.replace('@WeatherDailyBot', '').strip())
 
                 location_exists, place = valid_location(message)
 
