@@ -16,11 +16,11 @@ from google_trans_new import google_translator
 def getMention(api):
     tweets = api.mentions_timeline()
 
-    with open('users_accepted.txt', 'r') as f:
+    with open(text_path, 'r') as f:
         users_accepted = json.load(f)
         print(users_accepted)
 
-    with open('users_accepted.txt', 'w') as f:
+    with open(text_path, 'w') as f:
         user_exists = False
         location_exists = False
         data = []
@@ -80,7 +80,7 @@ def checkBadConditions(onecall):
 def tweetWeather(api):
     now = datetime.datetime.now()
     if now.hour == 9:
-        with open('users_accepted.txt', 'r') as f:
+        with open(text_path, 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
 
         for user in users_accepted:
@@ -103,7 +103,7 @@ def tweetWeather(api):
             tweet_content += "\nÍndice UV: " + str(round(uvi, 1))
 
             #Sunscreen warning
-            if uvi >= 7:
+            if uvi >= 7.5:
                 tweet_content += " mete protetor solar! " + '\U0001F9F4'
 
             #Beach time
@@ -124,6 +124,7 @@ def tweetWeather(api):
 
 #Setting up enviorment variables
 dotenv_path = join(dirname(__file__),'.env')
+text_path = join(dirname(__file__),'users_accepted.txt')
 load_dotenv(dotenv_path)
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
 CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
@@ -151,11 +152,11 @@ while True:
     try:
         api.verify_credentials()
         print("Authentication OK")
+        #followBack(api)
+        getMention(api)
+        tweetWeather(api)
     except:
         print("Error during authentication")
 
-    #followBack(api)
-    getMention(api)
-    tweetWeather(api)
     print("Waiting...")
     time.sleep(2 * 60)  #Request every 2 minutes
