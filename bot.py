@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from os.path import join, dirname
 from generate_countries import read_file
 from tweet_handler import valid_location
-from google_trans_new import google_translator  
+from google_trans_new import google_translator
 
 
 #Get the last 20 mentions on the timeline and store it on a file
@@ -72,14 +72,13 @@ def checkBadConditions(onecall):
         translator = google_translator()  
         translate_text = translator.translate(status, lang_tgt='pt') 
         info = "\nHoje vai ter " + translate_text + " " + '\U0001F327'
-    
     return info
 
 
 #Tweets the weather
 def tweetWeather(api):
     now = datetime.datetime.now()
-    if now.hour == 9:
+    if now.hour == 8:
         with open(text_path, 'r') as f:
             users_accepted = json.load(f)  #Do a list of dictionaries that are inside the .txt
 
@@ -90,7 +89,6 @@ def tweetWeather(api):
             
             place = reg.locations_for(city, country)[0]
             one_call = mgr.one_call(place.lat, place.lon)  #Creates a One Call object
-            
             forecast = one_call.forecast_daily[0].temperature('celsius')  #Get information for the day
 
             tweet_content = "Dia " + str(now.day) + " de " + months[now.month-1] + " @" + key + " vai ter máximas de " + str(round(forecast['max'], 1)) + "ºC com mínimas de " + str(round(forecast['min'], 1)) + "ºC. Atualmente estão " + str(round(one_call.current.temperature('celsius')['temp'], 1)) + "ºC em " + city + ", " + country
@@ -103,7 +101,7 @@ def tweetWeather(api):
             tweet_content += "\nÍndice UV: " + str(round(uvi, 1))
 
             #Sunscreen warning
-            if uvi >= 7.5:
+            if uvi >= 9.0:
                 tweet_content += " mete protetor solar! " + '\U0001F9F4'
 
             #Beach time
@@ -117,7 +115,6 @@ def tweetWeather(api):
 
             api.update_status(tweet_content)
             print(tweet_content)  #Debug
-            
             time.sleep(20)
         time.sleep(2 * 60* 60)  #Wait 2 hours
 
