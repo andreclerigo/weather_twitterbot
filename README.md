@@ -3,7 +3,7 @@ Works by tweeting at the bot with the location you want to be notified
 
 ## Usage
 `@bot_tag Lisbon, Portugal`  
-The bot will tweet at you everyday at 10:00 Lisbon Time the maximum and minimum expected temperature for Madrid, Spain
+The bot will tweet at you everyday at 08:00 Lisbon Time the maximum and minimum expected temperature for Madrid, Spain
 
 ## Bot features
 - Tweets everyday at 9am Lisbon Time
