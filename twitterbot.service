@@ -1,0 +1,14 @@
+Description=Autostart WeatherTwitterBot on system startup
+
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+ExecStart=su - pi -c "/usr/bin/screen -dmS twitter bash -c 'python3 ~/github/weather_twitterbot/bot.py'"
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
