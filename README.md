@@ -35,3 +35,17 @@ ACCESS_TOKEN=YOUR_ACCESS_TOKEN_TWITTER_DEVELOPER_ACCOUNT
 ACCESS_TOKEN_SECRET=YOUR_ACCESS_TOKEN_SECRET_TWITTER_DEVELOPER_ACCOUNT
 API_KEY=YOUR_API_KEY_OWM
 ```
+
+## Create a service
+On `line 8` in `twitterbot.service`  
+Change `~/github/weather_twitterbot/bot.py` to `your_path_to_file/bot.py`  
+If you aren't sure what's the path to the file go inside the directory that contains the file and do `pwd` on the terminal  
+
+Now open the terminal on `weather_twitterbot/` and run  
+```
+sudo cp twitterbot.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start twitterbot.service
+sudo systemctl enable twitterbot.service
+```
+The last command is to make sure that the service is started on system startup
