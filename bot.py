@@ -5,6 +5,7 @@ import json
 import pyowm  #import Python Open Weather Map
 import tweepy
 import datetime
+import traceback
 from dotenv import load_dotenv
 from os.path import join, dirname
 from generate_countries import read_file
@@ -39,7 +40,6 @@ def getMention(api):
             #If the user isnt already in the databse then add him
             if not user_exists:
                 message = str(tweet.text.replace('@WeatherDailyBot', '').strip())
-
                 location_exists, place = valid_location(message)
 
                 if location_exists:
@@ -154,6 +154,7 @@ while True:
         tweetWeather(api)
     except:
         print("Error during authentication")
+        traceback.print_exc()
 
     print("Waiting...")
     time.sleep(2 * 60)  #Request every 2 minutes
